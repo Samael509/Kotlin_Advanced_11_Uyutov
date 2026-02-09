@@ -1,4 +1,5 @@
 import modules.EnergyGenerator
+import modules.ModuleResult
 import modules.ResearchLab
 import resources.OutpostResource
 import resources.ResourceManager
@@ -12,13 +13,29 @@ fun main() {
 //    manager.printAll()
 //    val bonusMiniral = mineral.copy(id = 3, amount = mineral.amount + 60)
 //    println("бонусные минералы: $bonusMiniral")
+fun handModuleResult(result: ModuleResult) {
+    when(result) {
+        is ModuleResult.Success ->
+            println("успех: ${result.message}")
+        is ModuleResult.ResourceProduced ->
+            println("произведено: ${result.resourceName} +${result.amount}")
+        is ModuleResult.NotEnoughResources ->
+            println(
+                "недостаточно ресурса ${result.resouceName}" + "нужно: ${result.required}, есть: ${result.available}"
+            )
+        is ModuleResult.Error ->
+            println("ошибка: ${result.reason}")
+    }
+}
     val manager = ResourceManager()
     manager.add(OutpostResource(1,"minerals", 120))
     manager.add(OutpostResource(2,"gas", 50))
     val generator = EnergyGenerator()
     val lab = ResearchLab()
-    generator.performAction(manager)
-    lab.performAction(manager)
+    val generatorResult = generator.performAction(manager)
+    val labResult = lab.performAction(manager)
+    handModuleResult(generatorResult)
+    handModuleResult(labResult)
     println()
     manager.printAll()
 }
